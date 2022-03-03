@@ -1,0 +1,11 @@
+bs4
+tqdm
+swifter
+opencc-python-reimplemented
+
+tensorflow-text==2.7
+tf-models-official==2.7
+transformers
+datasets
+
+streamlit==1.5.0
