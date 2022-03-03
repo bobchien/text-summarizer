@@ -9,9 +9,14 @@ from utils.preprocessor import preprocessors
 from utils.servitization import HF2TFSeq2SeqPipeline
 
 config = configparser.ConfigParser()
-config.read('../config/streamlit.cfg')
 
-lang = config['data']['lang']
+try:
+    config.read('../config/streamlit.cfg')
+    lang = config['data']['lang']
+except:
+    config.read('/app/text-summarizer/config/streamlit.cfg')
+    lang = config['data']['lang']
+    
 max_lengths = {'inp':config['data'].getint('inp_len'), 'tar':config['data'].getint('tar_len')}
 text_preprocessors = {'inp':preprocessors[lang], 'tar':preprocessors[lang]}
 

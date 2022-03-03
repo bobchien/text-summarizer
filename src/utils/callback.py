@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 
 
-
 def print_seq2seq(sentence, prediction, ground_truth=None):
     print(f'{"Input:":15s}: {sentence}')
     try:
