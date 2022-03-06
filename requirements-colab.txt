@@ -1,12 +1,7 @@
-bs4==0.0.1
-
-tqdm==4.62.3
-numpy==1.22.2
-pandas==1.4.0
+tqdm
+numpy
+pandas
 swifter
-matplotlib==3.5.1
-
-ipython==7.31.1
 
 opencc-python-reimplemented==0.1.6
 
@@ -21,4 +16,4 @@ transformers==4.16.2
 datasets==1.18.3
 rouge_score
 
-streamlit==1.5.0
+gcsfs
