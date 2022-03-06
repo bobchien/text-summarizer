@@ -1,0 +1,4 @@
+models/savedmodels/model/ filter=lfs diff=lfs merge=lfs -text
+models/savedmodels/model/assets filter=lfs diff=lfs merge=lfs -text
+models/savedmodels/model/saved_model.pb filter=lfs diff=lfs merge=lfs -text
+models/savedmodels/model/variables filter=lfs diff=lfs merge=lfs -text
