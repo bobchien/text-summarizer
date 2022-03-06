@@ -1,5 +1,4 @@
-notebooks/_TBD*
-models/savedmodels
+#models/savedmodels
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
