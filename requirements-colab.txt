@@ -6,9 +6,9 @@ swifter
 opencc-python-reimplemented==0.1.6
 
 scikit-learn==1.0.2
-tensorflow==2.7.0
+tensorflow==2.7.1
 tensorflow-hub==0.12.0
-tensorflow-text==2.7.0
+tensorflow-text==2.7.1
 tensorflow-datasets==4.5.2
 tf-models-official==2.7
 
