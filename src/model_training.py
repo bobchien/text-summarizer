@@ -96,14 +96,14 @@ GLOBAL_BATCH_SIZE = BATCH_SIZE * strategy.num_replicas_in_sync
 ############################## setup dataset #############################
 
 # read number of samples
-num_samples = [file for file in tf.io.gfile.listdir(os.path.join(DIR_TFRECORD, lang)) if 'train' in file][0]
+num_samples = [file for file in tf.io.gfile.listdir(os.path.join(configuration.DIR_TFRECORD, lang)) if 'train' in file][0]
 num_samples = int(num_samples[num_samples.rfind('-')+1:num_samples.rfind('.')])
 print('\nNumber of Samples:', num_samples)
 
 # load tfrecord
-train_batches = loadTFRecord('train', os.path.join(DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, BUFFER_SIZE)
-valid_batches = loadTFRecord('valid', os.path.join(DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE)
-test_batches = loadTFRecord('test',   os.path.join(DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, cache=False)
+train_batches = loadTFRecord('train', os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, BUFFER_SIZE)
+valid_batches = loadTFRecord('valid', os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE)
+test_batches = loadTFRecord('test',   os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, cache=False)
 
 ############################### setup model ###############################
 
@@ -155,8 +155,8 @@ with strategy.scope():
     print('\nrun_id:', run_id, '\n')
 
     # Setup the saving path
-    checkpoint_path = os.path.join(DIR_CHECKPOINT, model_name+'_'+run_id, 'ckpt')
-    log_dir = os.path.join(DIR_LOG, model_name+'_'+run_id)
+    checkpoint_path = os.path.join(configuration.DIR_CHECKPOINT, model_name+'_'+run_id, 'ckpt')
+    log_dir = os.path.join(configuration.DIR_LOG, model_name+'_'+run_id)
 
     # Setup callbacks
     es_metric = 'val_loss'
@@ -208,5 +208,5 @@ if __name__ == '__main__':
     config_detail = f"{model_name}_{score}_{run_id}"
     predictor = HF2TFSeq2SeqExporter(model, tokenizers, BOS_IDS, beam_params, sampler_params,
                                      bert_names, config_detail, lang, lang)
-    predictor_dir = os.path.join(DIR_MODEL, f"{model_name}_{score}")
+    predictor_dir = os.path.join(configuration.DIR_MODEL, f"{model_name}_{score}")
     tf.saved_model.save(predictor, export_dir=predictor_dir)
