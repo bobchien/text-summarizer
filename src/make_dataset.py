@@ -4,9 +4,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
+from utils import configuration
 from utils.configuration import *
 from utils.preprocessor import *
 
+changeToColabPath(configuration.colab)
+createDirectory()
 
 def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, split=False, plot=False, random_state=24601):
     name = from_file[from_file.rfind('/')+1:]
@@ -18,7 +21,7 @@ def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, spl
         data = pd.read_csv(from_file, header=None).rename(columns=data_head)[['title', 'content']]
         data = data.assign(**{c:data[c].str.replace(f'"{c}": "', '').str[:-1] for c in data.columns})
     elif 'lcsts_data' in from_file:
-        data = pd.read_json(DIR_DATA+'/zh/lcsts_data.json')
+        data = pd.read_json(configuration.DIR_DATA+'/zh/lcsts_data.json')
         # remove hashtag & quotation marks in label column
         data = data.assign(title=data.title.str.replace('#|“|”', ''))
     
@@ -56,7 +59,7 @@ def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, spl
     else:
         return data
 
-
+    
 config = configparser.ConfigParser()
 config.read('../config/model.cfg')
 
@@ -79,11 +82,11 @@ if __name__ == '__main__':
     test_size = config['data'].getint('test_size')  
 
     # setup path
-    train_from_path = os.path.join(DIR_DATA, lang, train_file)
-    test_from_path = os.path.join(DIR_DATA, lang, test_file)
-    train_to_path = os.path.join(DIR_INTERMIN, lang, 'train.zip')
-    valid_to_path = os.path.join(DIR_INTERMIN, lang, 'valid.zip')
-    test_to_path = os.path.join(DIR_INTERMIN, lang, 'test.zip')
+    train_from_path = os.path.join(configuration.DIR_DATA, lang, train_file)
+    test_from_path = os.path.join(configuration.DIR_DATA, lang, test_file)
+    train_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'train.zip')
+    valid_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'valid.zip')
+    test_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'test.zip')
 
     # preprocess 
     if test_file:
