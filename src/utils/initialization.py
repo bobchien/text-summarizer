@@ -25,10 +25,6 @@ import tensorflow_datasets as tfds
 
 ### Setup
 
-# Configuration
-
-from .configuration import *
-
 # suppress warnings 
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)  
