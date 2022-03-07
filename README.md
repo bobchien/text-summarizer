@@ -1,9 +1,9 @@
 # **Stock News Summarizer**
 
 ## **Description**
-The target of this project is to build a model with the ability to gain main information & ideas in short texts and articles, mainly the daily crawled stock news, and thus save a great amount of time to read and comprehend. Therefore, this project structures an end-to-end Transformer model using [**Hugging Face**](https://huggingface.co/) & [**Tensorflow**](https://www.tensorflow.org/?hl=zh-tw), which is composed of the pretrained bert tokenizer & encoder and the [customized tokenizer](https://github.com/bobscchien/text-tokenizer) (https://github.com/bobscchien/text-tokenizer) & decoder, to get a text summarizer. <br>
-The second part of this project is to crawl stock news on the internet (currently only support the search engine of https://tw.finance.yahoo.com) with specified keywords. The modules of this crawler are **requests**, **BeautifulSoup4** and **urllib** <br> 
-Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is used to deploy this service on the [website](https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py) (https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py).
+The target of this project is to build a model with the ability to gain main information & ideas in short texts and articles, mainly the daily crawled stock news, and thus save a great amount of time to read and comprehend. Therefore, this project structures an end-to-end Transformer model using [**Hugging Face**](https://huggingface.co/) & [**Tensorflow**](https://www.tensorflow.org/?hl=zh-tw), which is composed of the pretrained bert tokenizer & encoder and the [customized tokenizer](https://github.com/bobscchien/text-tokenizer) & decoder, to get a text summarizer. <br>
+The second part of this project is to crawl stock news on the internet (currently only support the search engine of https://tw.finance.yahoo.com) with specified keywords. The modules of this crawler are **requests**, **BeautifulSoup4** and **urllib**. <br> 
+Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is used to deploy this service on the [demo website](https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py) (https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py).
 
 <br>
 
@@ -19,11 +19,17 @@ Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is us
 **Configuration** <br>
 `config/conf.ini` is the configuration file for main program to store `data` & `models` in a seperate data directory, while `config/conf-repo.ini` uses the paths in this repository.<br>
 
-**Main Program** <br>
+**Main Program - Model Training** <br>
 The usage part and the main program of this project can be divided into four parts:
 1. Modify the configuration file in `config` based on your setting & environemnt.
-2. Run `cd src && python make_dataset.py` to automatically process & save the raw dataset (default: [**LCSTS**](http://icrc.hitsz.edu.cn/Article/show/139.html)) to intermediate status. This script includes transferring Simplified Chinese to Traditional Chinese, converting halfwidth letters to fullwidth, and other preprocessing processes. 
+2. Run `cd src && python make_dataset.py` to automatically process & save the raw dataset (default: [**LCSTS**](http://icrc.hitsz.edu.cn/Article/show/139.html)) to intermediate status. This script includes transferring Simplified Chinese to Traditional Chinese, converting halfwidth letters to fullwidth for Chinese (in reverse for English), and other preprocessing processes. 
 3. Run `cd src && python make_tokenizer.py` to customize your own tokenizer based on the datasets, which also includes two datasets from [TensorFlow Datasets](https://www.tensorflow.org/datasets/overview) to add more words in the lexicon.
+4. Run `cd src && python make_tfrecord.py` to tokenize and transform the CSV dataset (intermediate files) into TFRecord dataset (processed files). For source data, this script uses pretrained tokenizers from [**Hugging Face**](https://huggingface.co/), and results in 2 ~ 3 inputs (tokens, masks, ids) depending on the problem situation. For target data, only 1 output will be generated since here we use the basic form of the Transformer Decoder which refers to [this tutorial](https://www.tensorflow.org/text/tutorials/transformer).
+5. Finally, run `cd src && python model_training.py` to train the model with the processed dataset of TFRecord files. The configuration of models and traingings can be modified in `config/model.cfg`, and the outputs of tensorboard logs, model checkpoints, and saved models will be stored based on `config/conf.ini` or `config/conf-repo.ini`.
+
+**Demonstration - Streamlit Application** <br>
+1. test
+2. test
 
 <br>
 
