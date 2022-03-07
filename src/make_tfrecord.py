@@ -1,10 +1,13 @@
 import shutil
 
+from utils import configuration
 from utils.configuration import *
 from data.dataset_tfrecord import saveTFRecord, loadTFRecord
 from models.tokenizer import *
 from models.transformer_bert import BERT_NAMES
 
+changeToColabPath(configuration.colab)
+createDirectory()
 
 config = configparser.ConfigParser()
 config.read('../config/model.cfg')
@@ -16,7 +19,7 @@ bert_name = config['model']['bert_name']
 
 bert_names = {'inp':BERT_NAMES[lang][bert_name][0],
               'tar':None}
-cache_dirs = {'inp':os.path.join(DIR_MODELTORCH, bert_names['inp']),
+cache_dirs = {'inp':os.path.join(configuration.DIR_MODELTORCH, bert_names['inp']),
               'tar':None}
 max_lengths = {'inp':config['model'].getint('inp_max'), 
                'tar':config['model'].getint('tar_max')}
@@ -27,7 +30,7 @@ print(f"\nMax Length of Text: {max_lengths}")
 
 ### load tokenizer
 
-loader = load_tokenizers(os.path.join(DIR_TOKEN, 'bert_tokenizers'), max_lengths, 
+loader = load_tokenizers(os.path.join(configuration.DIR_TOKEN, 'bert_tokenizers'), max_lengths, 
                          lang, bert_names['inp'], cache_dirs['inp'], 
                          inp_mask=True, inp_type=False)
 tokenizers = loader[0]
@@ -41,9 +44,9 @@ if __name__ == '__main__':
     import pandas as pd
 
     # load intermin dataset
-    train_texts, train_labels = pd.read_csv(os.path.join(DIR_INTERMIN, lang, 'train.zip'))[['source', 'target']].dropna().values.T.tolist()
-    valid_texts, valid_labels = pd.read_csv(os.path.join(DIR_INTERMIN, lang, 'valid.zip'))[['source', 'target']].dropna().values.T.tolist()
-    test_texts, test_labels = pd.read_csv(os.path.join(DIR_INTERMIN, lang, 'test.zip'))[['source', 'target']].dropna().values.T.tolist()    
+    train_texts, train_labels = pd.read_csv(os.path.join(configuration.DIR_INTERMIN, lang, 'train.zip'))[['source', 'target']].dropna().values.T.tolist()
+    valid_texts, valid_labels = pd.read_csv(os.path.join(configuration.DIR_INTERMIN, lang, 'valid.zip'))[['source', 'target']].dropna().values.T.tolist()
+    test_texts, test_labels = pd.read_csv(os.path.join(configuration.DIR_INTERMIN, lang, 'test.zip'))[['source', 'target']].dropna().values.T.tolist()    
 
     # generate tfrecord files
     print('\n Start to reprocess intermediate data to tfrecord files...\n')
@@ -66,7 +69,7 @@ if __name__ == '__main__':
     
     ### Save the tokens to tfrecord files
     
-    file_path = os.path.join(DIR_TFRECORD, lang)
+    file_path = os.path.join(configuration.DIR_TFRECORD, lang)
     
     # clean and recreate the folder
     shutil.rmtree(file_path)
