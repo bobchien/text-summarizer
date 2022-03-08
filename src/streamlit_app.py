@@ -14,7 +14,7 @@ try:
     config.read('../config/streamlit.cfg')
     lang = config['data']['lang']
 except:
-    config.read('/app/text-summarizer/config/streamlit.cfg')
+    config.read('/app/text-summarizer/config/streamlit-deploy.cfg')
     lang = config['data']['lang']
     
 max_lengths = {'inp':config['data'].getint('inp_len'), 'tar':config['data'].getint('tar_len')}
