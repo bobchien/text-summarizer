@@ -35,8 +35,6 @@ The usage part and the main program of this project can be divided into four par
 
 ## **Notice**
 *  
-* 
-*  
   
 <br>
 
