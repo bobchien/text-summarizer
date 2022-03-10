@@ -1,7 +1,7 @@
 import os
 import datetime
 import configparser
-from pathlib import path
+from pathlib import Path
 
 import streamlit as st
 
