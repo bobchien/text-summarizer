@@ -6,7 +6,6 @@ from pathlib import Path
 import streamlit as st
 
 from news_crawler import news_crawler
-from clouds.connect_gdrive import download_file_from_google_drive
 from utils.preprocessor import preprocessors
 from utils.servitization import HF2TFSeq2SeqPipeline
 
@@ -57,6 +56,8 @@ def crawl_news(keyword, time_mark, max_len=max_lengths['inp']):
 def build_model_pipeline(config, text_preprocessors):
     # Build pipeline
     if not app_local:
+        from clouds.connect_gdrive import gdown_file_from_google_drive, download_file_from_google_drive
+
         # create tmp directories
         Path('model').mkdir(exist_ok=True)
         Path('model/assets').mkdir(exist_ok=True)
