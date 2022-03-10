@@ -15,11 +15,13 @@ config = configparser.ConfigParser()
 try:
     # local running
     app_local = True
+    
     config.read('../config/streamlit.cfg')
     lang = config['data']['lang']
 except:
     # github running
     app_local = False
+    
     config.read('/app/text-summarizer/config/streamlit-deploy.cfg')
     lang = config['data']['lang']
     gdrive_assests_vocab_id   = str(st.secrets["gdrive"]["assests_vocab_id"])
@@ -77,7 +79,8 @@ def build_model_pipeline(config, text_preprocessors):
                 ]
             ):
                 if checkpoint.exists():continue
-                download_file_from_google_drive(gdrive_id, checkpoint)
+                gdown_file_from_google_drive(gdrive_id, checkpoint)
+                #download_file_from_google_drive(gdrive_id, checkpoint)
 
     pipeline = HF2TFSeq2SeqPipeline(config['path']['predictor_dir'], config['path']['pretrain_dir'], text_preprocessors)
     bert_name = pipeline.inp_bert

@@ -33,3 +33,10 @@ def download_file_from_google_drive(file_id, destination):
         response = session.get(URL, params=params, stream=True)
 
     save_response_content(response, destination)    
+
+def gdown_file_from_google_drive(file_id, file_path):
+    import gdown
+    
+    url = 'https://drive.google.com/uc?id='+file_id
+    gdown.download(url, file_path, quiet=False)
+    
