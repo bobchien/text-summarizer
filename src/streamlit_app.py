@@ -13,14 +13,18 @@ config = configparser.ConfigParser()
 
 try:
     # local running
+    app_local = True
     config.read('../config/streamlit.cfg')
     lang = config['data']['lang']
-    app_local = True
 except:
     # github running
+    app_local = False
     config.read('/app/text-summarizer/config/streamlit-deploy.cfg')
     lang = config['data']['lang']
-    app_local = False
+    gdrive_assests_vocab_id   = str(st.secrets["gdrive"]["assests_vocab_id"])
+    gdrive_variables_data_id  = str(st.secrets["gdrive"]["variables_data_id"])
+    gdrive_variables_index_id = str(st.secrets["gdrive"]["variables_index_id"])
+    gdrive_saved_model_id     = str(st.secrets["gdrive"]["saved_model_id"])
     
 max_lengths = {'inp':config['data'].getint('inp_len'), 'tar':config['data'].getint('tar_len')}
 text_preprocessors = {'inp':preprocessors[lang], 'tar':preprocessors[lang]}
@@ -67,10 +71,8 @@ def build_model_pipeline(config, text_preprocessors):
                     checkpoint_vocab, checkpoint_data, checkpoint_index, checkpoint_model
                 ],
                 [
-                    st.secrets["gdrive"]["assests_vocab_id"], 
-                    st.secrets["gdrive"]["variables_data_id"], 
-                    st.secrets["gdrive"]["variables_index_id"], 
-                    st.secrets["gdrive"]["saved_model_id"], 
+                    gdrive_assests_vocab_id, gdrive_variables_data_id,
+                    gdrive_variables_index_id, gdrive_saved_model_id    
                 ]
             ):
                 if checkpoint.exists():continue
