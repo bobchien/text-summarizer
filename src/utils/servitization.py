@@ -46,15 +46,16 @@ class HF2TFSingleClassifierExporter(tf.Module):
 class HF2TFClassifierPipeline(tf.Module):
     def __init__(self, predictor_dir, pretrain_dir, preprocessors=None, tokenizer_params={}):
         self.predictor = tf.saved_model.load(predictor_dir)
-        self.inp_lang = self.predictor.inp_lang.numpy().decode()        
-        self.inp_bert = self.predictor.inp_bert.numpy().decode()        
+        self.inp_lang = self.predictor.inp_lang.numpy().decode()
+        self.inp_bert = self.predictor.inp_bert.numpy().decode()
+        self.inp_cjk = True if self.inp_lang in ['zh', 'jp', 'kr'] else False
         self.preprocessors = preprocessors
         
         self.bert_dir = os.path.join(pretrain_dir, self.inp_bert)
         self.bert_config = AutoConfig.from_pretrained(self.inp_bert, cache_dir=self.bert_dir)
         self.bert_tokenizer = HFSelectTokenizer(self.inp_bert).from_pretrained(self.inp_bert, 
                                                                                cache_dir=self.bert_dir, 
-                                                                               do_lower_case=True)
+                                                                               do_lower_case=not self.inp_cjk)
         self.bert_tokenizer_params = {
             'add_special_tokens':True, 
             'padding':True, 'truncation':True, 
@@ -156,7 +157,8 @@ class HF2TFSeq2SeqPipeline(tf.Module):
         self.inp_lang = self.predictor.inp_lang.numpy().decode()        
         self.tar_lang = self.predictor.tar_lang.numpy().decode()        
         self.inp_bert = self.predictor.inp_bert.numpy().decode()        
-        self.tar_bert = self.predictor.tar_bert.numpy().decode() 
+        self.tar_bert = self.predictor.tar_bert.numpy().decode()
+        self.inp_cjk = True if self.inp_lang in ['zh', 'jp', 'kr'] else False
         self.preprocessors = preprocessors
         
         # Only support input data now
@@ -164,7 +166,7 @@ class HF2TFSeq2SeqPipeline(tf.Module):
         self.bert_config = AutoConfig.from_pretrained(self.inp_bert, cache_dir=self.bert_dir)
         self.bert_tokenizer = HFSelectTokenizer(self.inp_bert).from_pretrained(self.inp_bert, 
                                                                                cache_dir=self.bert_dir, 
-                                                                               do_lower_case=True)
+                                                                               do_lower_case=not self.inp_cjk)
         self.bert_tokenizer_params = {
             'add_special_tokens':True, 
             'padding':True, 'truncation':True, 
@@ -173,7 +175,7 @@ class HF2TFSeq2SeqPipeline(tf.Module):
         for k, v in tokenizer_params.items():
             self.bert_tokenizer_params[k] = v
         
-    def __call__(self, sentence, max_lengths={'inp':128, 'tar':128}, return_attention=False):
+    def __call__(self, sentence, max_lengths={'inp':256, 'tar':256}, return_attention=False):
         # Set the maxmium length of input sentence
         self.bert_tokenizer_params['max_length'] = max_lengths['inp']
         

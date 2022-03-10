@@ -48,7 +48,7 @@ def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, spl
 
     # preprocess texts & labels
     print("  Preprocess & Transfer from Simplified Chinese to Tranditional Chinese...")
-    data = data.swifter.applymap(lambda text:preprocessors[lang](cc.convert(text)).numpy().decode().replace(' ', ''))
+    data = data.swifter.applymap(lambda text:preprocessors[lang](cc.convert(text), py_function=True)[0].replace(' ', ''))
     data = data.dropna().reset_index(drop=True)
     
     # split dataset & output

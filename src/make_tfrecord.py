@@ -30,8 +30,9 @@ print(f"\nMax Length of Text: {max_lengths}")
 
 ### load tokenizer
 
-loader = load_tokenizers(os.path.join(configuration.DIR_TOKEN, 'bert_tokenizers'), max_lengths, 
-                         lang, bert_names['inp'], cache_dirs['inp'], 
+loader = load_tokenizers(custom_path=os.path.join(configuration.DIR_TOKEN, 'bert_tokenizers'),
+                         max_lengths=max_lengths, 
+                         inp_lang=lang, inp_bert=bert_names['inp'], inp_cache=cache_dirs['inp'], 
                          inp_mask=True, inp_type=False)
 tokenizers = loader[0]
 tokenizer_params = loader[1]

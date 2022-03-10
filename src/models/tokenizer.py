@@ -198,6 +198,8 @@ def load_tokenizers(custom_path, max_lengths,
     """
     """
     tar_lang = tar_lang if tar_lang else inp_lang
+    inp_cjk = True if inp_lang in ['zh', 'jp', 'kr'] else False
+    tar_cjk = True if tar_lang in ['zh', 'jp', 'kr'] else False
 
     ### Tokenizers
 
@@ -207,7 +209,7 @@ def load_tokenizers(custom_path, max_lengths,
         # Pretrained Bert Tokenizer
         tokenizers.inp = HFSelectTokenizer(inp_bert).from_pretrained(inp_bert, 
                                                                      cache_dir=inp_cache, 
-                                                                     do_lower_case=True)
+                                                                     do_lower_case=not inp_cjk)
     else:
         # Customized Bert Tokenizer
         tokenizers.inp = getattr(tf.saved_model.load(custom_path), inp_lang)
@@ -216,7 +218,7 @@ def load_tokenizers(custom_path, max_lengths,
         # Pretrained Bert Tokenizer
         tokenizers.tar = HFSelectTokenizer(tar_bert).from_pretrained(tar_bert, 
                                                                      cache_dir=tar_cache, 
-                                                                     do_lower_case=True)
+                                                                     do_lower_case=not tar_cjk)
     else:
         # Customized Bert Tokenizer
         tokenizers.tar = getattr(tf.saved_model.load(custom_path), tar_lang)

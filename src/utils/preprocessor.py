@@ -82,6 +82,9 @@ def zh_preprocess(text: Union[List[str], tf.Tensor], py_function: bool = False) 
         # we neet to use the native python replacement mechanism to do it.
         def preprocess(sentence):
             sentence = sentence.lower()
+            # transform quote marks
+            sentence = re.sub("“", "「", sentence)
+            sentence = re.sub("”", "」", sentence)
             # halfwidth -> fullwidth
             sentence = strB2Q(sentence)
             # Clean HTML markers
@@ -100,6 +103,9 @@ def zh_preprocess(text: Union[List[str], tf.Tensor], py_function: bool = False) 
         text = [preprocess(sentence) for sentence in text]
     else:
         text = tf.strings.lower(text)
+        # transform quote marks
+        text = tf.strings.regex_replace(text, "“", "「")
+        text = tf.strings.regex_replace(text, "”", "」")
         # halfwidth -> fullwidth
         text = strB2Q_tf(text)
         # Clean HTML marker
@@ -121,6 +127,9 @@ def en_preprocess(text: Union[List[str], tf.Tensor], py_function: bool = False) 
         # we neet to use the native python replacement mechanism to do it.
         def preprocess(sentence):
             sentence = sentence.lower()
+            # transform quote marks
+            sentence = re.sub("“", '"', sentence)
+            sentence = re.sub("”", '"', sentence)
             # fullwidth -> halfwidth
             sentence = strQ2B(sentence)
             # Clean HTML markers
@@ -139,6 +148,9 @@ def en_preprocess(text: Union[List[str], tf.Tensor], py_function: bool = False) 
         text = [preprocess(sentence) for sentence in text]
     else:
         text = tf.strings.lower(text)
+        # transform quote marks
+        text = tf.strings.regex_replace(text, "“", '"')
+        text = tf.strings.regex_replace(text, "”", '"')
         # fullwidth -> halfwidth 
         text = strQ2B_tf(text)
         # Clean HTML marker

@@ -5,17 +5,22 @@ import streamlit as st
 
 from news_crawler import news_crawler
 
+from clouds.connect_gdrive import download_file_from_google_drive
 from utils.preprocessor import preprocessors
 from utils.servitization import HF2TFSeq2SeqPipeline
 
 config = configparser.ConfigParser()
 
 try:
+    # local running
     config.read('../config/streamlit.cfg')
     lang = config['data']['lang']
+    app_local = True
 except:
+    # github running
     config.read('/app/text-summarizer/config/streamlit-deploy.cfg')
     lang = config['data']['lang']
+    app_local = False
     
 max_lengths = {'inp':config['data'].getint('inp_len'), 'tar':config['data'].getint('tar_len')}
 text_preprocessors = {'inp':preprocessors[lang], 'tar':preprocessors[lang]}
@@ -35,6 +40,7 @@ st.set_page_config(
 @st.cache()
 def crawl_news(keyword, time_mark, max_len=max_lengths['inp']):
     """
+     - keyword: input words for the search engine
      - time_mark: cache the crawled results for the same time_mark
     """
     articles = news_crawler(keyword, max_len)
@@ -43,6 +49,33 @@ def crawl_news(keyword, time_mark, max_len=max_lengths['inp']):
 @st.cache(allow_output_mutation=True)
 def build_model_pipeline(config, text_preprocessors):
     # Build pipeline
+    if not app_local:
+        # create tmp directories
+        Path('model').mkdir(exist_ok=True)
+        Path('model/assets').mkdir(exist_ok=True)
+        Path('model/variables').mkdir(exist_ok=True)
+        
+        # setup checkpoint to avoid reloading
+        checkpoint_vocab = Path(f"model/assets/{lang}_vocab.txt")
+        checkpoint_data  = Path("model/variables/variables.data-00000-of-00001")
+        checkpoint_index = Path("model/variables/variables.index")
+        checkpoint_model = Path("model/saved_model.pb")
+        
+        with st.spinner("Model Downloading..."):
+            for checkpoint, gdrive_id in zip(
+                [
+                    checkpoint_vocab, checkpoint_data, checkpoint_index, checkpoint_model
+                ],
+                [
+                    st.secrets["gdrive"]["assests_vocab_id"], 
+                    st.secrets["gdrive"]["variables_data_id"], 
+                    st.secrets["gdrive"]["variables_index_id"], 
+                    st.secrets["gdrive"]["saved_model_id"], 
+                ]
+            ):
+                if checkpoint.exists():continue
+                download_file_from_google_drive(gdrive_id, checkpoint)
+
     pipeline = HF2TFSeq2SeqPipeline(config['path']['predictor_dir'], config['path']['pretrain_dir'], text_preprocessors)
     bert_name = pipeline.inp_bert
     return pipeline, bert_name
