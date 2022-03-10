@@ -18,7 +18,7 @@ try:
     config.read('../config/streamlit.cfg')
     lang = config['data']['lang']
 except:
-    # github running
+    # github running 
     app_local = False
     
     config.read('/app/text-summarizer/config/streamlit-deploy.cfg')
@@ -28,6 +28,8 @@ except:
     gdrive_variables_index_id = str(st.secrets["gdrive"]["variables_index_id"])
     gdrive_saved_model_id     = str(st.secrets["gdrive"]["saved_model_id"])
     
+predictor_dir = config['path']['predictor_dir']
+
 max_lengths = {'inp':config['data'].getint('inp_len'), 'tar':config['data'].getint('tar_len')}
 text_preprocessors = {'inp':preprocessors[lang], 'tar':preprocessors[lang]}
 
@@ -59,31 +61,29 @@ def build_model_pipeline(config, text_preprocessors):
         from clouds.connect_gdrive import gdown_file_from_google_drive, download_file_from_google_drive
 
         # create tmp directories
-        Path('model').mkdir(exist_ok=True)
-        Path('model/assets').mkdir(exist_ok=True)
-        Path('model/variables').mkdir(exist_ok=True)
+        os.makedirs(predictor_dir, exist_ok=True)
+        os.makedirs(os.path.join(predictor_dir, 'assets'), exist_ok=True)
+        os.makedirs(os.path.join(predictor_dir, 'variables'), exist_ok=True)
         
         # setup checkpoint to avoid reloading
-        checkpoint_vocab = Path(f"model/assets/{lang}_vocab.txt")
-        checkpoint_data  = Path("model/variables/variables.data-00000-of-00001")
-        checkpoint_index = Path("model/variables/variables.index")
-        checkpoint_model = Path("model/saved_model.pb")
+        file_vocab = os.path.join(predictor_dir, f"assets/{lang}_vocab.txt")
+        file_data  = os.path.join(predictor_dir, "variables/variables.data-00000-of-00001")
+        file_index = os.path.join(predictor_dir, "variables/variables.index")
+        file_model = os.path.join(predictor_dir, "saved_model.pb")
         
-        with st.spinner("Model Downloading..."):
-            for checkpoint, gdrive_id in zip(
-                [
-                    checkpoint_vocab, checkpoint_data, checkpoint_index, checkpoint_model
-                ],
-                [
-                    gdrive_assests_vocab_id, gdrive_variables_data_id,
-                    gdrive_variables_index_id, gdrive_saved_model_id    
-                ]
-            ):
-                if checkpoint.exists():continue
-                gdown_file_from_google_drive(gdrive_id, checkpoint)
-                #download_file_from_google_drive(gdrive_id, checkpoint)
+        for file, gdrive_id in zip(
+            [
+                file_vocab, file_data, file_index, file_model
+            ],
+            [
+                gdrive_assests_vocab_id, gdrive_variables_data_id,
+                gdrive_variables_index_id, gdrive_saved_model_id    
+            ]
+        ):
+            gdown_file_from_google_drive(gdrive_id, file)
+            #download_file_from_google_drive(gdrive_id, file)
 
-    pipeline = HF2TFSeq2SeqPipeline(config['path']['predictor_dir'], config['path']['pretrain_dir'], text_preprocessors)
+    pipeline = HF2TFSeq2SeqPipeline(predictor_dir, config['path']['pretrain_dir'], text_preprocessors)
     bert_name = pipeline.inp_bert
     return pipeline, bert_name
 
