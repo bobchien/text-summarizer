@@ -58,7 +58,7 @@ def crawl_news(keyword, time_mark, max_len=max_lengths['inp']):
 def build_model_pipeline(config, text_preprocessors):
     # Build pipeline
     if not app_local:
-        from clouds.connect_gdrive import gdown_file_from_google_drive, download_file_from_google_drive
+        from clouds.connect_gdrive import gdown_file_from_google_drive
 
         # create tmp directories
         os.makedirs(predictor_dir, exist_ok=True)
@@ -80,6 +80,7 @@ def build_model_pipeline(config, text_preprocessors):
                 gdrive_variables_index_id, gdrive_saved_model_id    
             ]
         ):
+            if os.path.isfile(file): continue
             gdown_file_from_google_drive(gdrive_id, file)
             #download_file_from_google_drive(gdrive_id, file)
 
@@ -89,7 +90,9 @@ def build_model_pipeline(config, text_preprocessors):
 
 def model_inference(pipeline, input_text):
     # Predict
-    target_text, target_tokens, attention_weights = pipeline(input_text, max_lengths=max_lengths, return_attention=True)
+    target_text, target_tokens, attention_weights = pipeline(input_text, 
+                                                             max_lengths=max_lengths, 
+                                                             return_attention=True)
 
     # Postprocess
     target_text = target_text.replace(' ', '').replace('[]', '')

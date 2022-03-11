@@ -3,7 +3,7 @@
 ## **Description**
 The target of this project is to build a model with the ability to gain main information & ideas in short texts and articles, mainly the daily crawled stock news, and thus save a great amount of time to read and comprehend. Therefore, this project structures an end-to-end Transformer model using [**Hugging Face**](https://huggingface.co/) & [**Tensorflow**](https://www.tensorflow.org/?hl=zh-tw), which is composed of the pretrained bert tokenizer & encoder and the [customized tokenizer](https://github.com/bobscchien/text-tokenizer) & decoder, to get a text summarizer. <br>
 The second part of this project is to crawl stock news on the internet (currently only support the search engine of https://tw.finance.yahoo.com) with specified keywords. The modules of this crawler are **requests**, **BeautifulSoup4** and **urllib**. <br> 
-Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is used to deploy this service on the [demo website](https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py) (https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py).
+Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is used to deploy this service on the [demo website](https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py).
 
 <br>
 
