@@ -1,12 +1,11 @@
 import os
 import datetime
 import configparser
-from pathlib import Path
 
 import streamlit as st
 
 from news_crawler import news_crawler
-from utils.preprocessor import preprocessors
+from utils.preprocessor import preprocessors, strQ2B
 from utils.servitization import HF2TFSeq2SeqPipeline
 
 config = configparser.ConfigParser()
@@ -102,23 +101,30 @@ def model_inference(pipeline, input_text):
 ### setup information
 
 st.title("Stock News Summarizer")
-st.subheader('Crawl the News & Summarize the Points')
+col_left, col_right = st.columns([1, 1])
+
+text = (
+    'This project structures an end-to-end Transformer model using [**Hugging Face**](https://huggingface.co/) & [**Tensorflow**](https://www.tensorflow.org/?hl=zh-tw), '
+    'which is composed of the pretrained bert tokenizer & encoder and the [customized tokenizer](https://github.com/bobscchien/text-tokenizer) & decoder, '
+    'to get a text summarizer. '
+    '[_**Source Code**_](https://github.com/bobscchien/text-summarizer)'
+)
+col_left.markdown(text)
 
 st.write('')
-keyword = st.text_input('Please input your keyword for search engine:', value='遠傳')
-
-# divide columns
-col1, col2, col3 = st.columns([3, 3, 3])
+st.subheader('**Crawl News & Retrieve Summary**')
+keyword = st.text_input('Input your keyword for the search engine:', value='遠傳')
 
 # create buttons & load models
-start_to_summarize_all = col3.button('Summarize All News')
-start_to_summarize = col2.button('Summarize Each News') | start_to_summarize_all
-start_to_crawl = col1.button('Crawl Finance News') | start_to_summarize | start_to_summarize_all
+col1, col2 = st.columns([1, 2])
+start_to_summarize = col2.button('Summarize Each News')
+start_to_crawl = col1.button('Crawl Finance News') | start_to_summarize
 
 pipeline, bert_name = build_model_pipeline(config, text_preprocessors)
 
 # create expanders
-expander3 = col3.expander("Click to Collapse" if start_to_summarize_all else 'Not Yet Summarized', expanded=True)
+col1, col2, col3 = st.columns([1, 1, 1])
+expander3 = col3.expander("Click to Collapse" if start_to_summarize else 'Not Yet Summarized', expanded=True)
 expander2 = col2.expander("Click to Collapse" if start_to_summarize else 'Not Yet Summarized', expanded=True)
 expander1 = col1.expander("Click to Collapse" if start_to_crawl else 'Current Time', expanded=True)
 
@@ -147,6 +153,7 @@ if start_to_summarize:
     each_summaries = []
     for num, texts in enumerate(articles):
         summary = '，'.join([model_inference(pipeline, text)[0] for text in texts])
+        summary = strQ2B(summary)
         each_summaries.append(summary)
         progress_bar2.progress((num+1)/len(articles))
 
@@ -156,9 +163,9 @@ if start_to_summarize:
 
     # summarizer for all news
 
-    if start_to_summarize_all:
-        all_summary = model_inference(pipeline, '，'.join(each_summaries))[0]
-        expander3.write(all_summary)
+    all_summary = model_inference(pipeline, '，'.join(each_summaries))[0]
+    all_summary = strQ2B(all_summary)
+    expander3.write(all_summary)
 
 ### output input results
 
@@ -166,11 +173,26 @@ if start_to_summarize:
 
 st.sidebar.header('Text Summarizer')
 
+text_sample = {}
+text_sample[1] = (
+    "朋友買了一件衣料，綠色的底子帶白色方格，當她拿給我們看時，一位對圍棋十分感與趣的同學說：「啊，好像棋盤似的。」"
+    "「我看倒有點像稿紙。」我說。「真像一塊塊綠豆糕。」一位外號叫「大食客」的同學緊接著說。"
+    "我們不禁哄堂大笑，同樣的一件衣料，每個人卻有不同的感覺。"
+    "那位朋友連忙把衣料用紙包好，她覺得衣料就是衣料，不是棋盤，也不是稿紙，更不是綠豆糕。"
+)
+text_sample[2] = (
+    "把一隻貓關在一個封閉的鐵容器裏面，並且裝置以下儀器（注意必須確保這儀器不被容器中的貓直接干擾）："
+    "在一台蓋格計數器內置入極少量放射性物質，在一小時內，這個放射性物質至少有一個原子衰變的機率為50%，它沒有任何原子衰變的機率也同樣為50%；"
+    "假若衰變事件發生了，則蓋格計數管會放電，通過繼電器啟動一個榔頭，榔頭會打破裝有氰化氫的燒瓶。經過一小時以後，假若沒有發生衰變事件，則貓仍舊存活；"
+    "否則發生衰變，這套機構被觸發，氰化氫揮發，導致貓隨即死亡。"
+    "用以描述整個事件的波函數竟然表達出了活貓與死貓各半糾合在一起的狀態。"
+)
+
+num = st.sidebar.selectbox('Select one sample texts if needed', 
+                           [None]+list(text_sample.keys()))
 additional_text = st.sidebar.text_area(
     "Input your text here:",
-    ("朋友買了一件衣料，綠色的底子帶白色方格，當她拿給我們看時，一位對圍棋十分感與趣的同學說：「啊，好像棋盤似的。」"
-     "「我看倒有點像稿紙。」我說。「真像一塊塊綠豆糕。」一位外號叫「大食客」的同學緊接著說。"
-     "我們不禁哄堂大笑，同樣的一件衣料，每個人卻有不同的感覺。那位朋友連忙把衣料用紙包好，她覺得衣料就是衣料，不是棋盤，也不是稿紙，更不是綠豆糕。"),
+    text_sample[num] if num else "",
     height=400,
     max_chars=max_lengths['inp']
 )
@@ -181,4 +203,5 @@ single_summarize = st.sidebar.button('Summarize')
 
 if single_summarize:
     additional_result = model_inference(pipeline, additional_text)[0]
+    additional_result = strQ2B(additional_result)
     st.sidebar.text(additional_result)

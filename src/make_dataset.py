@@ -11,7 +11,8 @@ from utils.preprocessor import *
 changeToColabPath(configuration.colab)
 createDirectory()
 
-def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, split=False, plot=False, random_state=24601):
+def preprocess_raw_data(from_file, lang, min_inp_len=64, max_inp_len=256, min_tar_len=16, max_tar_len=256, 
+                        size=None, split=False, plot=False, random_state=24601):
     name = from_file[from_file.rfind('/')+1:]
     print(f"\nStart process raw data - {name}...\n")
     
@@ -27,8 +28,10 @@ def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, spl
     
     # specify the length range for datasets
     print(' Before clean, data size is:, ', len(data))
-    data = data.assign(length=data.content.apply(len))
-    data = data[(min_len<=data.length)&(data.length<=max_len)]
+    data = data.assign(length_inp=data.content.apply(len))
+    data = data[(min_inp_len<=data.length_inp)&(data.length_inp<=max_inp_len)]
+    data = data.assign(length_tar=data.title.apply(len))
+    data = data[(min_tar_len<=data.length_tar)&(data.length_tar<=max_tar_len)]
     print(' After clean, data size is:, ', len(data))
 
     # sample part of data
@@ -38,13 +41,14 @@ def preprocess_raw_data(from_file, lang, min_len=64, max_len=256, size=None, spl
 
     # show size & plot distribution
     print("  Data Size: ", data.shape[0])
-    plt.hist(data.length, bins=100)
-    if plot:
-        print("  Plot length distribution of content")
-        plt.show()
-    else:
-        plt.savefig(f'../reports/figures/data-{name}.jpg')
-    data = data.drop('length', axis=1)
+    for col_name, col in zip(['source', 'target'], ['length_inp', 'length_tar']):
+        plt.hist(data[col], bins=100)
+        if plot:
+            print(f"  Plot length distribution of {col_name}")
+            plt.show()
+        else:
+            plt.savefig(f'../reports/figures/data-{name}-{col_name}.jpg')
+        data = data.drop(col, axis=1)
 
     # preprocess texts & labels
     print("  Preprocess & Transfer from Simplified Chinese to Tranditional Chinese...")
@@ -71,9 +75,10 @@ lang = config['data']['lang']
 test_file = config['data']['test_file']
 train_file = config['data']['train_file']
   
-min_len = config['data'].getint('min_len')    
-max_len = config['data'].getint('max_len')
-
+min_inp_len = config['data'].getint('min_inp_len')    
+max_inp_len = config['data'].getint('max_inp_len')
+min_tar_len = config['data'].getint('min_tar_len')    
+max_tar_len = config['data'].getint('max_tar_len')
 
 if __name__ == '__main__':
 
@@ -90,13 +95,14 @@ if __name__ == '__main__':
 
     # preprocess 
     if test_file:
-        test = preprocess_raw_data(test_from_path, lang, min_len, max_len, size=test_size, random_state=seed)
+        test = preprocess_raw_data(test_from_path, lang, min_inp_len, max_inp_len, min_tar_len, max_tar_len,
+                                   size=test_size, random_state=seed)
         test_size = len(test)
     else:
         test = None
         test_size *= 2
 
-    train, valid = preprocess_raw_data(train_from_path, lang, min_len, max_len, 
+    train, valid = preprocess_raw_data(train_from_path, lang, min_inp_len, max_inp_len, min_tar_len, max_tar_len,
                                        size=train_size, split=test_size, random_state=seed)
     if not bool(test):
         valid, test = train_test_split(valid, test_size=0.5, random_state=seed)
