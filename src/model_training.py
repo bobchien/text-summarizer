@@ -83,8 +83,8 @@ def predict_step(model, dataset, tensor=False):
         pred_list = detokenize_fn(pred, 'tar')
 
         # Accumulate the results for later computation
-        text_metric.add_batch(predictions=[[text[0].replace(' ', '')] for text in pred_list], 
-                              references=[[text[0].replace(' ', '')] for text in tar_list])
+        text_metric.add_batch(predictions=pred_list, 
+                              references=tar_list)
 
         return inp_list, tar_list, pred_list
     else:

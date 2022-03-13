@@ -113,7 +113,7 @@ col_left.markdown(text)
 
 st.write('')
 st.subheader('**Crawl News & Retrieve Summary**')
-keyword = st.text_input('Input your keyword for the search engine:', value='遠傳')
+keyword = st.text_input('Input your keyword for the search engine:', value='台灣')
 
 # create buttons & load models
 col1, col2 = st.columns([1, 2])
@@ -139,12 +139,18 @@ if start_to_crawl:
     # update the news every n minutes
     n = 5
     time_mark = (current_time.hour*60+current_time.minute) // n
-    articles = crawl_news(keyword, time_mark)
+    articles_raw = crawl_news(keyword, time_mark)
 
-    for num, texts in enumerate(articles):
-        expander1.write(f'[ NEWS {str(num+1).zfill(2)} ]')
+    count = 0
+    articles = []
+    for texts in articles_raw:
+        # before applying Longformer, only demonstrate those shorter than 2 * max_inp_len texts
+        if len(''.join(texts)) > max_lengths['inp']*2: continue
+        expander1.write(f'[ NEWS {str(count+1).zfill(2)} ]')
         expander1.write('\n'.join(texts).replace(keyword, f'**{keyword}**'))
-
+        articles.append(texts)
+        count += 1
+        
 # summarizer for each news
 
 if start_to_summarize:
@@ -189,7 +195,7 @@ text_sample[2] = (
 )
 
 num = st.sidebar.selectbox('Select one sample texts if needed', 
-                           [None]+list(text_sample.keys()))
+                           [2]+list(text_sample.keys()))
 additional_text = st.sidebar.text_area(
     "Input your text here:",
     text_sample[num] if num else "",
@@ -201,7 +207,7 @@ additional_text = st.sidebar.text_area(
 
 single_summarize = st.sidebar.button('Summarize')
 
-if single_summarize:
+if single_summarize | start_to_summarize:
     additional_result = model_inference(pipeline, additional_text)[0]
     additional_result = strQ2B(additional_result)
     st.sidebar.text(additional_result)
