@@ -5,6 +5,8 @@ The target of this project is to build a model with the ability to gain main inf
 The second part of this project is to crawl stock news on the internet (currently only support the search engine of https://tw.finance.yahoo.com) with specified keywords. The modules of this crawler are **requests**, **BeautifulSoup4** and **urllib**. <br> 
 Finally, for demonstration purpose, [**streamlit**](https://streamlit.io/) is used to deploy this service on the [demo website](https://share.streamlit.io/bobscchien/text-summarizer/src/streamlit_app.py).
 
+![Application-Demo](reports/markdown/application-ui.png)
+
 <br>
 
 ## **Dataset**
