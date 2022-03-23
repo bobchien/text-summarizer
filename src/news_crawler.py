@@ -1,4 +1,5 @@
 import re
+import sys
 import tqdm
 from pprint import pprint
 import requests
@@ -6,8 +7,8 @@ import argparse
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 
-
 def news_crawler(keyword, max_len):
+
     # define the headers of browsers
     headers = {
         "User-Agent":'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:97.0) Gecko/20100101 Firefox/97.0'
@@ -36,16 +37,21 @@ def news_crawler(keyword, max_len):
         text_concat = ''
         # text: each paragraph of this news
         for text in texts:
-            # for those paragraphs already greater than max_len, recursively use this function  
-            if len(text) > max_len:
-                article += combine_text(text.split('，'), article)
-            # try to fill text_concat to length max_len 
-            elif len(text_concat+text) <= max_len:
-                text_concat += text
-            # append and reset text_concat if it reaches max_len
-            else:
-                article.append(text_concat)
-                text_concat = ''
+            try:
+                # for those paragraphs already greater than max_len, recursively use this function  
+                if len(text) > max_len:
+                    article += combine_text(text.split('，'), article)
+                # try to fill text_concat to length max_len 
+                elif len(text_concat+text) <= max_len:
+                    text_concat += text
+                # append and reset text_concat if it reaches max_len
+                else:
+                    article.append(text_concat)
+                    text_concat = ''
+            except:
+                print('Cannot process this text:')
+                print(text)
+                pass
         return article
 
     articles = []
