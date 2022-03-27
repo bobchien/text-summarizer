@@ -96,15 +96,17 @@ GLOBAL_BATCH_SIZE = BATCH_SIZE * strategy.num_replicas_in_sync
 
 ############################## setup dataset #############################
 
+dir_tfrecord = os.path.join(configuration.DIR_TFRECORD, lang)
+
 # read number of samples
-num_samples = [file for file in tf.io.gfile.listdir(os.path.join(configuration.DIR_TFRECORD, lang)) if 'train' in file][0]
+num_samples = [file for file in tf.io.gfile.listdir(dir_tfrecord) if 'train' in file][0]
 num_samples = int(num_samples[num_samples.rfind('-')+1:num_samples.rfind('.')])
 print('\nNumber of Samples:', num_samples)
 
 # load tfrecord
-train_batches = loadTFRecord('train', os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, BUFFER_SIZE)
-valid_batches = loadTFRecord('valid', os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE)
-test_batches = loadTFRecord('test',   os.path.join(configuration.DIR_TFRECORD, lang), GLOBAL_BATCH_SIZE, cache=False)
+train_batches = loadTFRecord('train', dir_tfrecord, GLOBAL_BATCH_SIZE, BUFFER_SIZE)
+valid_batches = loadTFRecord('valid', dir_tfrecord, GLOBAL_BATCH_SIZE)
+test_batches = loadTFRecord('test',   dir_tfrecord, GLOBAL_BATCH_SIZE, cache=False)
 
 ############################### setup model ###############################
 
