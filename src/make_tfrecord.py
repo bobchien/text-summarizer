@@ -55,7 +55,7 @@ if __name__ == '__main__':
     #*** Bert Tokenization: can only accept str, List[str] or List[List[str]]
     encodings = []
     for texts, labels in zip([train_texts, valid_texts, test_texts], 
-                                [train_labels, valid_labels, test_labels]):
+                             [train_labels, valid_labels, test_labels]):
         if bert_names['inp']:
             inp_encoding = tokenizers.inp(texts, **tokenizer_params['inp'])
         else:
@@ -73,8 +73,9 @@ if __name__ == '__main__':
     file_path = os.path.join(configuration.DIR_TFRECORD, lang)
     
     # clean and recreate the folder
-    shutil.rmtree(file_path)
-    os.mkdir(file_path)
+    if os.path.isdir(file_path):
+        shutil.rmtree(file_path)
+    os.makedirs(file_path, exist_ok=True)
 
     saveTFRecord("train", file_path, encodings[0], shard=config['data'].getint('train_shard'))
     saveTFRecord("valid", file_path, encodings[1], shard=config['data'].getint('valid_shard'))
