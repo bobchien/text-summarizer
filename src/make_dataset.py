@@ -89,9 +89,13 @@ if __name__ == '__main__':
     # setup path
     train_from_path = os.path.join(configuration.DIR_DATA, lang, train_file)
     test_from_path = os.path.join(configuration.DIR_DATA, lang, test_file)
-    train_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'train.zip')
-    valid_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'valid.zip')
-    test_to_path = os.path.join(configuration.DIR_INTERMIN, lang, 'test.zip')
+    
+    to_path = os.path.join(configuration.DIR_INTERMIN, lang)
+    if not os.path.isdir(to_path):
+        os.makedirs(to_path, exist_ok=True)
+    train_to_path = os.path.join(to_path, 'train.zip')
+    valid_to_path = os.path.join(to_path, 'valid.zip')
+    test_to_path = os.path.join(to_path, 'test.zip')
 
     # preprocess 
     if test_file:
