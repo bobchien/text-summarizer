@@ -34,6 +34,7 @@ text_preprocessors = {'inp':preprocessors[lang], 'tar':preprocessors[lang]}
 
 ### setup page
 
+# https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
 st.set_page_config(
     page_title="bobscchien/text-summarizer",
     page_icon="rolled_up_newspaper",
