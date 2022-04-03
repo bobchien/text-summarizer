@@ -22,4 +22,5 @@ datasets==1.18.3
 #rouge_score
 
 gdown
+click<=8.0.4
 streamlit==1.5.0
